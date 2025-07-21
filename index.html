@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Torneios de Poker (GTP)</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div class="background-animation"></div>
+    <div class="poker-chips-container"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1>Gerenciador de Torneios de Poker</h1>
+            <div class="player-info">
+                <div class="player-field">
+                    <label for="player-nickname">Nick:</label>
+                    <input type="text" id="player-nickname" placeholder="Seu nickname">
+                </div>
+                <div class="player-field">
+                    <label for="player-team">Time/Partição:</label>
+                    <input type="text" id="player-team" placeholder="Seu time">
+                </div>
+            </div>
+            <div class="header-controls">
+                <button id="notes-btn" class="notes-btn" title="Anotações">
+                    <i class="fas fa-book"></i>
+                </button>
+                <button id="highlight-past-btn" class="highlight-past-btn" title="Destacar horários passados">
+                    <i class="fas fa-clock"></i>
+                </button>
+                <button id="sound-alerts-btn" class="sound-alerts-btn" title="Alertas Sonoros">
+                    <i class="fas fa-bell-slash"></i>
+                </button>
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sistema de Abas -->
+        <nav class="tabs-container">
+            <button class="tab-btn active" data-tab="tournaments">
+                <i class="fas fa-calendar-alt"></i> Grade de Torneios
+            </button>
+            <button class="tab-btn" data-tab="sessions">
+                <i class="fas fa-bookmark"></i> Sessões Salvas
+            </button>
+            <button class="tab-btn" data-tab="statistics">
+                <i class="fas fa-chart-bar"></i> Estatísticas
+            </button>
+            <button class="tab-btn" data-tab="calendar">
+                <i class="fas fa-calendar-check"></i> Calendário
+            </button>
+            <button class="tab-btn" data-tab="import">
+                <i class="fas fa-file-pdf"></i> Importar Grade
+            </button>
+        </nav>
+
+        <!-- Aba: Grade de Torneios -->
+        <div id="tournaments-tab" class="tab-content active">
+            <div class="tab-header">
+                <div class="tab-controls">
+                    <button id="add-tournament" class="add-btn">
+                        <i class="fas fa-plus"></i> Adicionar Torneio
+                    </button>
+                    <button id="copy-schedule" class="copy-btn">
+                        <i class="fas fa-copy"></i> Copiar Grade
+                    </button>
+                    <button id="save-session" class="save-session-btn">
+                        <i class="fas fa-bookmark"></i> Salvar Sessão
+                    </button>
+                    <button id="export-all" class="export-btn">
+                        <i class="fas fa-download"></i> Exportar Tudo
+                    </button>
+                    <button id="export-day" class="export-day-btn">
+                        <i class="fas fa-calendar-day"></i> Exportar Dia
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-container">
+                <section class="day-filter-container">
+                    <button class="day-filter-btn active" data-day="all">Todos</button>
+                    <button class="day-filter-btn" data-day="Segunda">Seg</button>
+                    <button class="day-filter-btn" data-day="Terca">Ter</button>
+                    <button class="day-filter-btn" data-day="Quarta">Qua</button>
+                    <button class="day-filter-btn" data-day="Quinta">Qui</button>
+                    <button class="day-filter-btn" data-day="Sexta">Sex</button>
+                    <button class="day-filter-btn" data-day="Sabado">Sáb</button>
+                    <button class="day-filter-btn" data-day="Domingo">Dom</button>
+                </section>
+
+                <section class="site-filter-container">
+                    <label for="site-filter">Filtrar por Site:</label>
+                    <select id="site-filter" class="site-filter">
+                        <option value="all">Todos os Sites</option>
+                        <option value="PokerStars">PokerStars</option>
+                        <option value="GGPoker">GGPoker</option>
+                        <option value="PartyPoker">PartyPoker</option>
+                        <option value="TigerGaming">TigerGaming</option>
+                        <option value="ChampionPoker">ChampionPoker</option>
+                        <option value="CoinPoker">CoinPoker</option>
+                        <option value="888Poker">888Poker</option>
+                    </select>
+                </section>
+            </div>
+
+            <section class="tournaments-container">
+                <div class="tournaments-header">
+                    <div><input type="checkbox" id="select-all-tournaments" title="Selecionar todos"></div>
+                    <div>Horário</div>
+                    <div>Torneio</div>
+                    <div>Site</div>
+                    <div>Buy-in</div>
+                    <div>Garantido</div>
+                    <div>Ações</div>
+                </div>
+                <div id="tournaments-list" class="tournaments-list">
+                    <!-- Torneios serão renderizados aqui -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Aba: Sessões Salvas -->
+        <div id="sessions-tab" class="tab-content">
+            <div class="tab-header">
+                <h2>Sessões Salvas</h2>
+            </div>
+            <div id="sessions-list" class="sessions-list">
+                <!-- Sessões serão renderizadas aqui -->
+            </div>
+        </div>
+
+        <!-- Aba: Estatísticas -->
+        <div id="statistics-tab" class="tab-content">
+            <div class="tab-header">
+                <h2>Estatísticas Semanais</h2>
+            </div>
+            <div id="statistics-content" class="statistics-content">
+                <!-- Estatísticas serão renderizadas aqui -->
+            </div>
+        </div>
+
+        <!-- Aba: Calendário -->
+        <div id="calendar-tab" class="tab-content">
+            <div class="tab-header">
+                <h2>Calendário de Torneios</h2>
+                <div class="calendar-controls">
+                    <button id="prev-month" class="calendar-nav-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="current-month-year" class="current-month-year"></h3>
+                    <button id="next-month" class="calendar-nav-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="monthly-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total de Torneios no Mês:</span>
+                        <span id="monthly-total" class="summary-value">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="calendar-container">
+                <div class="calendar-grid">
+                    <div class="calendar-header">
+                        <div class="calendar-day-header">Dom</div>
+                        <div class="calendar-day-header">Seg</div>
+                        <div class="calendar-day-header">Ter</div>
+                        <div class="calendar-day-header">Qua</div>
+                        <div class="calendar-day-header">Qui</div>
+                        <div class="calendar-day-header">Sex</div>
+                        <div class="calendar-day-header">Sáb</div>
+                    </div>
+                    <div id="calendar-days" class="calendar-days">
+                        <!-- Dias do calendário serão renderizados aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba: Importar Grade -->
+        <div id="import-tab" class="tab-content">
+            <div class="tab-header">
+                <h2>Importar Grade via PDF</h2>
+            </div>
+            <div class="import-content">
+                <div class="upload-area">
+                    <input type="file" id="pdf-upload" accept=".pdf" style="display: none;">
+                    <button id="upload-btn" class="upload-btn">
+                        <i class="fas fa-upload"></i> Selecionar PDF
+                    </button>
+                    <p>Selecione um arquivo PDF com a grade de torneios</p>
+                </div>
+                <div id="extracted-text-container" class="extracted-text-container" style="display: none;">
+                    <h3>Texto Extraído:</h3>
+                    <textarea id="extracted-text" class="extracted-text" rows="20" placeholder="O texto extraído do PDF aparecerá aqui..."></textarea>
+                    <p class="help-text">Você pode editar o texto acima e copiar as informações para criar novos torneios manualmente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <p>Gerenciador de Torneios de Poker (GTP) | 
+        <a href="mailto:cassio_silva85@yahoo.com.br">cassio_silva85@yahoo.com.br</a> | 
+        Versão 2.0 - 2025</p>
+    </footer>
+
+    <!-- Modal de Anotações -->
+    <div id="notes-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Anotações (Diário)</h2>
+                <button class="close-btn" onclick="closeNotesModal()">&times;</button>
+            </div>
+            <div class="notes-content">
+                <textarea id="notes-textarea" class="notes-textarea" rows="15" placeholder="Escreva suas anotações aqui..."></textarea>
+                <div class="notes-actions">
+                    <button id="save-notes-btn" class="save-btn">Salvar Anotações</button>
+                    <button id="clear-notes-btn" class="cancel-btn">Limpar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modal de Adicionar/Editar Torneio -->
+    <div id="tournament-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Adicionar Torneio</h2>
+                <button id="close-modal" class="close-btn">&times;</button>
+            </div>
+            <form id="tournament-form">
+                <div class="form-group">
+                    <label for="tournament-time">Horário:</label>
+                    <input type="time" id="tournament-time" name="tournament-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="tournament-name">Nome do Torneio:</label>
+                    <input type="text" id="tournament-name" name="tournament-name" placeholder="Ex: Daily $10" required>
+                </div>
+                <div class="form-group">
+                    <label for="tournament-site">Site:</label>
+                    <select id="tournament-site" name="tournament-site" required>
+                        <option value="">Selecione o site</option>
+                        <option value="PokerStars">PokerStars</option>
+                        <option value="GGPoker">GGPoker</option>
+                        <option value="PartyPoker">PartyPoker</option>
+                        <option value="TigerGaming">TigerGaming</option>
+                        <option value="ChampionPoker">ChampionPoker</option>
+                        <option value="CoinPoker">CoinPoker</option>
+                        <option value="888Poker">888Poker</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tournament-buyin">Buy-in:</label>
+                    <input type="text" id="tournament-buyin" name="tournament-buyin" placeholder="Ex: $10" required>
+                </div>
+                <div class="form-group">
+                    <label for="tournament-guarantee">Garantido:</label>
+                    <input type="text" id="tournament-guarantee" name="tournament-guarantee" placeholder="Ex: $10k" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Cor do Nome:</label>
+                    <div class="color-options">
+                        <input type="radio" id="color-default" name="tournament-color" value="default" checked>
+                        <label for="color-default"><span class="color-box default"></span></label>
+
+                        <input type="radio" id="color-yellow" name="tournament-color" value="yellow">
+                        <label for="color-yellow"><span class="color-box yellow"></span></label>
+
+                        <input type="radio" id="color-red" name="tournament-color" value="red">
+                        <label for="color-red"><span class="color-box red"></span></label>
+
+                        <input type="radio" id="color-orange" name="tournament-color" value="orange">
+                        <label for="color-orange"><span class="color-box orange"></span></label>
+
+                        <input type="radio" id="color-green" name="tournament-color" value="green">
+                        <label for="color-green"><span class="color-box green"></span></label>
+
+                        <input type="radio" id="color-blue" name="tournament-color" value="blue">
+                        <label for="color-blue"><span class="color-box blue"></span></label>
+
+                        <input type="radio" id="color-black" name="tournament-color" value="black">
+                        <label for="color-black"><span class="color-box black"></span></label>
+
+                        <input type="radio" id="color-white" name="tournament-color" value="white">
+                        <label for="color-white"><span class="color-box white"></span></label>
+
+                        <input type="radio" id="color-lightblue" name="tournament-color" value="lightblue">
+                        <label for="color-lightblue"><span class="color-box lightblue"></span></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Dia da Semana:</label>
+                    <div class="days-checkboxes">
+                        <input type="checkbox" id="day-segunda" name="tournament-day" value="Segunda">
+                        <label for="day-segunda">Segunda</label>
+
+                        <input type="checkbox" id="day-terca" name="tournament-day" value="Terca">
+                        <label for="day-terca">Terça</label>
+
+                        <input type="checkbox" id="day-quarta" name="tournament-day" value="Quarta">
+                        <label for="day-quarta">Quarta</label>
+
+                        <input type="checkbox" id="day-quinta" name="tournament-day" value="Quinta">
+                        <label for="day-quinta">Quinta</label>
+
+                        <input type="checkbox" id="day-sexta" name="tournament-day" value="Sexta">
+                        <label for="day-sexta">Sexta</label>
+
+                        <input type="checkbox" id="day-sabado" name="tournament-day" value="Sabado">
+                        <label for="day-sabado">Sábado</label>
+
+                        <input type="checkbox" id="day-domingo" name="tournament-day" value="Domingo">
+                        <label for="day-domingo">Domingo</label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="cancel-btn" class="cancel-btn">Cancelar</button>
+                    <button type="submit" class="save-btn">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Copiar Grade -->
+    <div id="copy-schedule-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Copiar Grade</h2>
+                <button class="close-btn" onclick="closeCopyScheduleModal()">&times;</button>
+            </div>
+            <form id="copy-schedule-form">
+                <div class="form-group">
+                    <label for="source-day">Dia de Origem:</label>
+                    <select id="source-day" name="source-day" required>
+                        <option value="">Selecione o dia</option>
+                        <option value="Segunda">Segunda-feira</option>
+                        <option value="Terca">Terça-feira</option>
+                        <option value="Quarta">Quarta-feira</option>
+                        <option value="Quinta">Quinta-feira</option>
+                        <option value="Sexta">Sexta-feira</option>
+                        <option value="Sabado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="target-day">Dia de Destino:</label>
+                    <select id="target-day" name="target-day" required>
+                        <option value="">Selecione o dia</option>
+                        <option value="Segunda">Segunda-feira</option>
+                        <option value="Terca">Terça-feira</option>
+                        <option value="Quarta">Quarta-feira</option>
+                        <option value="Quinta">Quinta-feira</option>
+                        <option value="Sexta">Sexta-feira</option>
+                        <option value="Sabado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeCopyScheduleModal()" class="cancel-btn">Cancelar</button>
+                    <button type="submit" class="save-btn">Copiar Grade</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Salvar Sessão -->
+    <div id="save-session-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Salvar Sessão</h2>
+                <button class="close-btn" onclick="closeSaveSessionModal()">&times;</button>
+            </div>
+            <form id="save-session-form">
+                <div class="form-group">
+                    <label for="session-name">Nome da Sessão:</label>
+                    <input type="text" id="session-name" name="session-name" placeholder="Ex: Sessão Segunda-feira" required>
+                </div>
+                <div class="form-group">
+                    <label>Torneios Selecionados:</label>
+                    <div id="selected-tournaments-preview" class="selected-tournaments-preview">
+                        <!-- Preview dos torneios selecionados -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeSaveSessionModal()" class="cancel-btn">Cancelar</button>
+                    <button type="submit" class="save-btn">Salvar Sessão</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Exportar Dia Específico -->
+    <div id="export-day-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exportar Grade de Dia Específico</h2>
+                <button class="close-btn" onclick="closeExportDayModal()">&times;</button>
+            </div>
+            <form id="export-day-form">
+                <div class="form-group">
+                    <label for="export-day-select">Selecione o Dia:</label>
+                    <select id="export-day-select" name="export-day-select" required>
+                        <option value="">Selecione o dia</option>
+                        <option value="Segunda">Segunda-feira</option>
+                        <option value="Terca">Terça-feira</option>
+                        <option value="Quarta">Quarta-feira</option>
+                        <option value="Quinta">Quinta-feira</option>
+                        <option value="Sexta">Sexta-feira</option>
+                        <option value="Sabado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="export-format">Formato de Exportação:</label>
+                    <select id="export-format" name="export-format" required>
+                        <option value="csv">CSV (Excel)</option>
+                        <option value="json">JSON</option>
+                        <option value="txt">Texto</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeExportDayModal()" class="cancel-btn">Cancelar</button>
+                    <button type="submit" class="save-btn">Exportar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
